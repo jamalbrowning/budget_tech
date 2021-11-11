@@ -97,5 +97,5 @@ def delete_item(id):
   return budget_item_schema.jsonify(item)
   
 if __name__ == '__main__':
-  app.run(debug=True)
+  app.run(debug=True, host='0.0.0.0')
  
