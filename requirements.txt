@@ -1,3 +1,5 @@
 flask
-flask-alchemy
+flask-sqlalchemy
+flask-marshmallow
+
 redis
