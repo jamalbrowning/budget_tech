@@ -2,6 +2,7 @@
 from flask import Flask,request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_migrate import Migrate
 from models.schemas import *
 import os
 
@@ -16,6 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Init db
 db = SQLAlchemy(app)
+migrate = Migrate(app,db)
 #Init ma
 ma = Marshmallow(app)
 
@@ -24,17 +26,19 @@ class BudgetItem(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(100), unique=True)
   description = db.Column(db.String())
-  price = db.Column(db.Float)
+  estimated_total = db.Column(db.Float)
+  actual_total = db.Column(db.Float)
 
-  def __init__(self, name, description, price):
+  def __init__(self, name, description, estimated_total, actual_total):
     self.name = name
     self.description = description
-    self.price = price
+    self.estimated_total = estimated_total
+    self.actual_total = actual_total
 
 # Budget Item Schema
 class BudgetItemSchema(ma.Schema):
   class Meta:
-    fields = ('id','name','description','price')
+    fields = ('id','name','description','estimated_total', 'actual_total')
 
 # init Schema
 budget_item_schema = BudgetItemSchema()
@@ -50,9 +54,10 @@ def hello():
 def add_item():
   name = request.json['name']
   description = request.json['description']
-  price = request.json['price']
+  estimated_total = request.json['estimated_total']
+  actual_total = request.json['actual_total']
 
-  new_item = BudgetItem(name, description, price)
+  new_item = BudgetItem(name, description, estimated_total, actual_total)
 
   db.session.add(new_item)
   db.session.commit()
@@ -78,11 +83,13 @@ def update_item(id):
   item = BudgetItem.query.get(id)
   name = request.json['name']
   description = request.json['description']
-  price = request.json['price']
+  estimated_total = request.json['estimated_total']
+  actual_total = request.json['actual_total']
 
   item.name = name
   item.description = description
-  item.price = price
+  item.estimated_total = estimated_total
+  item.actual_total = actual_total
 
   db.session.commit()
 
